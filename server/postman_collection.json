@@ -1,0 +1,855 @@
+{
+  "info": {
+    "name": "Social Media API",
+    "description": "Complete Postman Collection for the Social Media Backend API. All protected routes require a valid Clerk session token in the Authorization header.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:4000",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "user_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "post_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "story_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "message_id",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Get Current User Data",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/user/data",
+              "host": ["{{base_url}}"],
+              "path": ["api", "user", "data"]
+            },
+            "description": "Returns the authenticated user's data from their Clerk session token."
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "status": "200 OK",
+              "code": 200,
+              "header": [
+                { "key": "Content-Type", "value": "application/json" }
+              ],
+              "body": "{\n  \"success\": true,\n  \"user\": {\n    \"_id\": \"{{user_id}}\",\n    \"email\": \"user@example.com\",\n    \"full_name\": \"John Doe\",\n    \"username\": \"johndoe\",\n    \"bio\": \"Hey there! I am using postly\",\n    \"profile_picture\": \"\",\n    \"cover_photo\": \"\",\n    \"location\": \"\",\n    \"followers\": [],\n    \"following\": [],\n    \"connections\": []\n  }\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Update User Profile",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/user/update",
+              "host": ["{{base_url}}"],
+              "path": ["api", "user", "update"]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "username",
+                  "value": "newusername",
+                  "type": "text"
+                },
+                {
+                  "key": "bio",
+                  "value": "Software developer and content creator",
+                  "type": "text"
+                },
+                {
+                  "key": "location",
+                  "value": "New York, USA",
+                  "type": "text"
+                },
+                {
+                  "key": "full_name",
+                  "value": "Johnathan Doe",
+                  "type": "text"
+                },
+                {
+                  "key": "profile",
+                  "value": "",
+                  "type": "file",
+                  "src": []
+                },
+                {
+                  "key": "cover",
+                  "value": "",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "description": "Updates the authenticated user's profile. Supports file uploads for profile picture and cover photo. Sends multipart/form-data."
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "status": "200 OK",
+              "code": 200,
+              "header": [
+                { "key": "Content-Type", "value": "application/json" }
+              ],
+              "body": "{\n  \"success\": true,\n  \"user\": { ... },\n  \"message\": \"Profile update seccessfully\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Discover Users",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/user/discover",
+              "host": ["{{base_url}}"],
+              "path": ["api", "user", "discover"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"input\": \"john\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Search users by username, email, full_name, or location using case-insensitive regex."
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "status": "200 OK",
+              "code": 200,
+              "body": "{\n  \"success\": true,\n  \"users\": []\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get User Profile",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/user/profiles",
+              "host": ["{{base_url}}"],
+              "path": ["api", "user", "profiles"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"profileId\": \"{{user_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Get a user's profile by their ID, including their posts."
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "status": "200 OK",
+              "code": 200,
+              "body": "{\n  \"success\": true,\n  \"profile\": { ... },\n  \"posts\": []\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Posts",
+      "item": [
+        {
+          "name": "Create Post",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/post/add",
+              "host": ["{{base_url}}"],
+              "path": ["api", "post", "add"]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "content",
+                  "value": "This is my new post!",
+                  "type": "text"
+                },
+                {
+                  "key": "post_type",
+                  "value": "text_with_image",
+                  "type": "text",
+                  "description": "Options: text, image, text_with_image"
+                },
+                {
+                  "key": "image",
+                  "value": "",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "description": "Create a new post. Supports up to 4 image uploads using the 'image' field (array). Sends multipart/form-data."
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "status": "200 OK",
+              "code": 200,
+              "body": "{\n  \"success\": true,\n  \"message\": \"Post Created successfully\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Feed Posts",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/post/feed",
+              "host": ["{{base_url}}"],
+              "path": ["api", "post", "feed"]
+            },
+            "description": "Returns posts from the authenticated user, their connections, and followed users, sorted by newest first."
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "status": "200 OK",
+              "code": 200,
+              "body": "{\n  \"success\": true,\n  \"posts\": []\n}"
+            }
+          ]
+        },
+        {
+          "name": "Like / Unlike Post",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/post/like",
+              "host": ["{{base_url}}"],
+              "path": ["api", "post", "like"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"postId\": \"{{post_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Toggles like on a post. If the user already liked it, the like is removed. If not, a like is added."
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "status": "200 OK",
+              "code": 200,
+              "body": "{\n  \"success\": true,\n  \"message\": \"Post liked\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Stories",
+      "item": [
+        {
+          "name": "Create Story",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/story/create",
+              "host": ["{{base_url}}"],
+              "path": ["api", "story", "create"]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "content",
+                  "value": "My story for today!",
+                  "type": "text"
+                },
+                {
+                  "key": "media_type",
+                  "value": "image",
+                  "type": "text",
+                  "description": "Options: text, image, video"
+                },
+                {
+                  "key": "background_color",
+                  "value": "#ff5733",
+                  "type": "text"
+                },
+                {
+                  "key": "media",
+                  "value": "",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "description": "Create a new story. The 'media' file field is required for image or video media types. Sends multipart/form-data. A background_color can be provided for text stories. The story is auto-deleted after 24 hours via Inngest."
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "status": "200 OK",
+              "code": 200,
+              "body": "{\n  \"success\": true\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Stories",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/story/get",
+              "host": ["{{base_url}}"],
+              "path": ["api", "story", "get"]
+            },
+            "description": "Returns stories from the authenticated user, their connections, and followed users, sorted by newest first."
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "status": "200 OK",
+              "code": 200,
+              "body": "{\n  \"success\": true,\n  \"stories\": []\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Messages",
+      "item": [
+        {
+          "name": "SSE - Connect to Message Stream",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/message/{{user_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "message", "{{user_id}}"]
+            },
+            "description": "Opens a Server-Sent Events (SSE) connection for real-time messaging. The response stream sends new messages as they arrive. No authentication required on this endpoint. The connection stays open until the client disconnects."
+          },
+          "response": [
+            {
+              "name": "SSE Stream",
+              "status": "200 OK",
+              "code": 200,
+              "body": "log: Connected to SSE stream\n\ndata: {\"message\": {...}}\n\n"
+            }
+          ]
+        },
+        {
+          "name": "Send Message",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/message/send",
+              "host": ["{{base_url}}"],
+              "path": ["api", "message", "send"]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "to_user_id",
+                  "value": "recipient_user_id_here",
+                  "type": "text"
+                },
+                {
+                  "key": "text",
+                  "value": "Hello! How are you?",
+                  "type": "text"
+                },
+                {
+                  "key": "image",
+                  "value": "",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "description": "Send a message to another user. If an image file is attached, the message_type is set to 'image'. Otherwise it's 'text'. Sends multipart/form-data."
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "status": "200 OK",
+              "code": 200,
+              "body": "{\n  \"success\": true,\n  \"message\": {\n    \"from_user_id\": \"{{user_id}}\",\n    \"to_user_id\": \"recipient_user_id_here\",\n    \"text\": \"Hello! How are you?\",\n    \"message_type\": \"text\",\n    \"media_url\": \"\",\n    \"seen\": false\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Chat Messages",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/message/get",
+              "host": ["{{base_url}}"],
+              "path": ["api", "message", "get"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"to_user_id\": \"other_user_id_here\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Get all chat messages between the authenticated user and another user. Messages are sorted newest-first. Unseen messages from the other user are marked as seen."
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "status": "200 OK",
+              "code": 200,
+              "body": "{\n  \"success\": true,\n  \"messages\": []\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Recent Messages",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/user/recent-messages",
+              "host": ["{{base_url}}"],
+              "path": ["api", "user", "recent-messages"]
+            },
+            "description": "Returns all messages sent to the authenticated user, populated with sender and receiver data, sorted by newest first."
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "status": "200 OK",
+              "code": 200,
+              "body": "{\n  \"success\": true,\n  \"messages\": []\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Connections",
+      "item": [
+        {
+          "name": "Follow User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/user/follow",
+              "host": ["{{base_url}}"],
+              "path": ["api", "user", "follow"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"user_id_to_follow\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Follow a user. Adds the target user to the authenticated user's following list and adds the authenticated user to the target's followers list."
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "status": "200 OK",
+              "code": 200,
+              "body": "{\n  \"success\": true,\n  \"message\": \"Now you are following this user\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Unfollow User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/user/unfollow",
+              "host": ["{{base_url}}"],
+              "path": ["api", "user", "unfollow"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"user_id_to_unfollow\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Unfollow a user. Removes the target user from the authenticated user's following list and vice versa."
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "status": "200 OK",
+              "code": 200,
+              "body": "{\n  \"success\": true,\n  \"message\": \"You are no longer following this user\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Send Connection Request",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/user/connect",
+              "host": ["{{base_url}}"],
+              "path": ["api", "user", "connect"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"user_id_to_connect\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Send a connection request to another user. Limited to 20 requests per 24 hours. Triggers an Inngest function that sends an email notification and a 24-hour reminder."
+          },
+          "response": [
+            {
+              "name": "Success - Request Sent",
+              "status": "200 OK",
+              "code": 200,
+              "body": "{\n  \"success\": true,\n  \"message\": \"Connection request sent successfully\"\n}"
+            },
+            {
+              "name": "Already Connected",
+              "status": "200 OK",
+              "code": 200,
+              "body": "{\n  \"success\": false,\n  \"message\": \"You are already connected\"\n}"
+            },
+            {
+              "name": "Already Sent",
+              "status": "200 OK",
+              "code": 200,
+              "body": "{\n  \"success\": false,\n  \"message\": \"Connection request already sent\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Accept Connection Request",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/user/accept",
+              "host": ["{{base_url}}"],
+              "path": ["api", "user", "accept"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"sender_user_id\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Accept a pending connection request from another user. Both users are added to each other's connections list."
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "status": "200 OK",
+              "code": 200,
+              "body": "{\n  \"success\": true,\n  \"message\": \"Connection accepted successfully\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Connections",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/user/connections",
+              "host": ["{{base_url}}"],
+              "path": ["api", "user", "connections"]
+            },
+            "description": "Returns the authenticated user's connections, followers, following, and pending connection requests (populated with user data)."
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "status": "200 OK",
+              "code": 200,
+              "body": "{\n  \"success\": true,\n  \"connections\": [],\n  \"followers\": [],\n  \"following\": [],\n  \"pendingConnections\": []\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Notifications",
+      "item": [
+        {
+          "name": "Inngest Webhook",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/inngest",
+              "host": ["{{base_url}}"],
+              "path": ["api", "inngest"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"clerk/user.created\",\n  \"data\": {\n    \"id\": \"clerk_user_id\",\n    \"first_name\": \"John\",\n    \"last_name\": \"Doe\",\n    \"email_addresses\": [\n      {\n        \"email_address\": \"john@example.com\"\n      }\n    ],\n    \"image_url\": \"https://img.clerk.com/example.jpg\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Inngest webhook endpoint for background job processing. Handles Clerk user lifecycle events (created, updated, deleted), connection request emails, story auto-deletion, and daily unseen message notifications."
+          },
+          "response": [
+            {
+              "name": "Accepted",
+              "status": "202 Accepted",
+              "code": 202,
+              "body": "{\n  \"ids\": [\"event_id\"]\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Other",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/",
+              "host": ["{{base_url}}"],
+              "path": [""]
+            },
+            "description": "Simple health check endpoint to verify the server is running."
+          },
+          "response": [
+            {
+              "name": "Server is running",
+              "status": "200 OK",
+              "code": 200,
+              "body": "Server is running"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
