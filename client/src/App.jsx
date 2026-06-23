@@ -67,7 +67,7 @@ export default function App() {
     const fetchData = async () => {
       if (user) {
         const token = await getToken();
-
+        if (!token) return; 
         dispatch(fetchUser(token));
         dispatch(fetchConnections(token));
       }
