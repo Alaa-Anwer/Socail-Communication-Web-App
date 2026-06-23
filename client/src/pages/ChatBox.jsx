@@ -105,22 +105,29 @@ const ChatBox = () => {
     if (!currentUser?._id) return;
 
     const eventSource = new EventSource(
-      `http://localhost:4000/api/message/${currentUser._id}`
+      `${import.meta.env.VITE_BASEURL}/api/message/${currentUser._id}`
     );
 
     eventSource.onmessage = (event) => {
+      if (!event.data || event.data === "connected") {
+        return;
+      }
+
       try {
         const newMessage = JSON.parse(event.data);
 
-        // منع تكرار الرسائل
         dispatch(addMessage(newMessage));
       } catch (error) {
-        console.log(error);
+        console.error(
+          "Invalid SSE message:",
+          event.data,
+          error
+        );
       }
     };
 
     eventSource.onerror = (error) => {
-      console.log("SSE Error:", error);
+      console.error("SSE Error:", error);
     };
 
     return () => {

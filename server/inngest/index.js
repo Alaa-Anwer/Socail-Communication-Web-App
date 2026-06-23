@@ -11,17 +11,24 @@ export const inngest = new Inngest({ id: "my-app" });
 const syncUserCreation = inngest.createFunction(
   {
     id: "sync-user-from-clerk",
+    retries: 0,
     triggers: [{ event: "clerk/user.created" }],
   },
   async ({ event }) => {
     const { id, first_name, last_name, email_addresses, image_url } =
       event.data;
 
+    console.log("[syncUserCreation] Clerk userId:", id);
+
+    if (!id || !email_addresses || !email_addresses[0]) {
+      throw new Error("Invalid Clerk webhook payload: missing id or email_addresses");
+    }
+
     let username = email_addresses[0].email_address.split("@")[0];
 
-    const user = await User.findOne({ username });
+    const existingUser = await User.findOne({ username });
 
-    if (user) {
+    if (existingUser) {
       username = username + Math.floor(Math.random() * 10000);
     }
 
@@ -29,12 +36,13 @@ const syncUserCreation = inngest.createFunction(
       _id: id,
       username,
       email: email_addresses[0].email_address,
-      full_name: `${first_name} ${last_name}`,
-      profile_picture: image_url,
-      username: username,
+      full_name: `${first_name || ""} ${last_name || ""}`.trim(),
+      profile_picture: image_url || "",
     };
 
+    console.log("[syncUserCreation] Creating Mongo user:", id);
     await User.create(userData);
+    console.log("[syncUserCreation] Mongo user created successfully:", id);
   },
 );
 

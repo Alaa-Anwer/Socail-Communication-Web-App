@@ -298,6 +298,13 @@ export const getUserConnections = async (req, res) => {
       "connections followers following",
     );
 
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found in database",
+      });
+    }
+
     const connections = user.connections;
     const followers = user.followers;
     const following = user.following;

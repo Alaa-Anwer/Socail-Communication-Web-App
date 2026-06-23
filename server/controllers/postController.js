@@ -84,6 +84,30 @@ export const getFeedPosts = async (req, res) => {
   }
 };
 
+export const getUserLikedPosts = async (req, res) => {
+  try {
+    const targetUserId = req.query.userId || req.auth().userId;
+
+    const posts = await Post.find({
+      likes_count: targetUserId,
+    })
+      .populate("user")
+      .sort({ createdAt: -1 });
+
+    res.json({
+      success: true,
+      posts,
+    });
+  } catch (error) {
+    console.log(error);
+
+    res.json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
 export const likePost = async (req, res) => {
   try {
     const { userId } = req.auth();

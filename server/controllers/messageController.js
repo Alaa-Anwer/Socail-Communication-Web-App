@@ -6,7 +6,7 @@ const connections = {};
 export const sseController = (req, res) => {
   const { userId } = req.params;
 
-  console.log("New client connected", userId);
+  console.log(`[SSE] Client connected: userId=${userId}, total connections=${Object.keys(connections).length}`);
 
   // Set SSE headers
   res.setHeader("Content-Type", "text/event-stream");
@@ -17,12 +17,17 @@ export const sseController = (req, res) => {
   // Add the client's response object to the connections object
   connections[userId] = res;
 
-res.write("data: connected\n\n");
+  res.write(
+    `data: ${JSON.stringify({
+      type: "connected",
+      userId,
+    })}\n\n`
+  );
   res.on("close", () => {
     // Remove the client's response object from the connections object
     delete connections[userId];
 
-    console.log("Client disconnected");
+    console.log(`[SSE] Client disconnected: userId=${userId}, remaining connections=${Object.keys(connections).length}`);
   });
 };
 

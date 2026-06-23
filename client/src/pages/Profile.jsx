@@ -18,6 +18,7 @@ const Profile = () => {
 
   const [user, setUser] = useState(null);
   const [posts, setPosts] = useState([]);
+  const [likedPosts, setLikedPosts] = useState([]);
   const [activeTab, setActiveTab] = useState("posts");
   const [showEdit, setShowEdit] = useState(false);
 
@@ -46,13 +47,36 @@ const Profile = () => {
     }
   };
 
-  useEffect(() => {
-    if (profileId) {
-      fetchUser(profileId);
-    } else {
-      fetchUser(currentUser._id);
+  const fetchLikedPosts = async (userId) => {
+    const token = await getToken();
+
+    try {
+      const { data } = await api.get("/api/post/liked-posts", {
+        params: { userId },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (data.success) {
+        setLikedPosts(data.posts);
+      }
+    } catch (error) {
+      toast.error(error.message);
     }
+  };
+
+  useEffect(() => {
+    const targetId = profileId || currentUser._id;
+    fetchUser(targetId);
   }, [profileId, currentUser]);
+
+  useEffect(() => {
+    if (activeTab === "likes") {
+      const targetId = profileId || currentUser._id;
+      fetchLikedPosts(targetId);
+    }
+  }, [activeTab, profileId, currentUser]);
   return user ? (
     <div className="relative h-full overflow-y-scroll bg-gray-50 p-6">
       <div className="max-w-3xl mx-auto">
@@ -103,6 +127,25 @@ const Profile = () => {
                       post={post}
                     />
                   ))
+                }
+              </div>
+            )
+          }
+
+          {
+            activeTab === "likes" && (
+              <div className="mt-6 flex flex-col items-center gap-6">
+                {
+                  likedPosts.length > 0 ? (
+                    likedPosts.map((post) => (
+                      <PostCard
+                        key={post._id}
+                        post={post}
+                      />
+                    ))
+                  ) : (
+                    <p className="text-gray-500 mt-10">No liked posts yet</p>
+                  )
                 }
               </div>
             )
